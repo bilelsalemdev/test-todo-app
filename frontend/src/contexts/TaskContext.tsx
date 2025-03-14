@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { api } from "../services/api";
+
+import { taskApi } from "../services/api";
 import { Task } from "../types/Task";
 
 interface TaskContextType {
@@ -28,7 +29,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const fetchTasks = async () => {
     try {
-      const data = await api.getTasks();
+      const data = await taskApi.getTasks();
       setTasks(data);
     } catch (err) {
       setError("Failed to fetch tasks");
@@ -41,7 +42,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     task: Omit<Task, "_id" | "createdAt" | "updatedAt">
   ) => {
     try {
-      const newTask = await api.createTask(task);
+      const newTask = await taskApi.createTask(task);
       setTasks((prev) => [newTask, ...prev]);
     } catch (err) {
       setError("Failed to create task");
@@ -51,7 +52,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const updateTask = async (id: string, task: Partial<Task>) => {
     try {
-      const updatedTask = await api.updateTask(id, task);
+      const updatedTask = await taskApi.updateTask(id, task);
       setTasks((prev) => prev.map((t) => (t._id === id ? updatedTask : t)));
     } catch (err) {
       setError("Failed to update task");
@@ -61,7 +62,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const deleteTask = async (id: string) => {
     try {
-      await api.deleteTask(id);
+      await taskApi.deleteTask(id);
       setTasks((prev) => prev.filter((t) => t._id !== id));
     } catch (err) {
       setError("Failed to delete task");

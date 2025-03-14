@@ -8,7 +8,10 @@ import {
   Select,
   MenuItem,
   Stack,
+  Card,
+  Typography,
 } from "@mui/material";
+import { Add as AddIcon } from "@mui/icons-material";
 import { TaskPriority } from "../types/Task";
 import { useTaskContext } from "../contexts/TaskContext";
 
@@ -36,39 +39,53 @@ const TaskForm = () => {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mb: 4 }}>
-      <Stack spacing={2}>
-        <TextField
-          fullWidth
-          label="Task"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          required
-        />
-        <FormControl fullWidth>
-          <InputLabel>Priority</InputLabel>
-          <Select
-            value={priority}
-            label="Priority"
-            onChange={(e) => setPriority(e.target.value as TaskPriority)}
+    <Card sx={{ p: 3, mb: 4, boxShadow: 2 }}>
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Add New Task
+      </Typography>
+      <Box component="form" onSubmit={handleSubmit}>
+        <Stack spacing={3}>
+          <TextField
+            fullWidth
+            label="Task Description"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            required
+            variant="outlined"
+            placeholder="What needs to be done?"
+          />
+          <FormControl fullWidth>
+            <InputLabel>Priority</InputLabel>
+            <Select
+              value={priority}
+              label="Priority"
+              onChange={(e) => setPriority(e.target.value as TaskPriority)}
+            >
+              <MenuItem value={TaskPriority.LOW}>Low Priority</MenuItem>
+              <MenuItem value={TaskPriority.MEDIUM}>Medium Priority</MenuItem>
+              <MenuItem value={TaskPriority.HIGH}>High Priority</MenuItem>
+            </Select>
+          </FormControl>
+          <TextField
+            fullWidth
+            label="Category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            placeholder="e.g., Work, Personal, Shopping"
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            size="large"
+            disabled={!text}
+            startIcon={<AddIcon />}
           >
-            <MenuItem value={TaskPriority.LOW}>Low</MenuItem>
-            <MenuItem value={TaskPriority.MEDIUM}>Medium</MenuItem>
-            <MenuItem value={TaskPriority.HIGH}>High</MenuItem>
-          </Select>
-        </FormControl>
-        <TextField
-          fullWidth
-          label="Category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        />
-        <Button type="submit" variant="contained" disabled={!text}>
-          Add Task
-        </Button>
-      </Stack>
-    </Box>
+            Add Task
+          </Button>
+        </Stack>
+      </Box>
+    </Card>
   );
 };
 
-export default TaskForm; 
+export default TaskForm;
