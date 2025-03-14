@@ -1,13 +1,17 @@
 import {
   Box,
+  Button,
   Container,
   createTheme,
   CssBaseline,
   ThemeProvider,
   Typography,
 } from "@mui/material";
+import { useState } from "react";
+import { LoginForm, RegisterForm } from "./components/AuthForms";
 import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { TaskProvider } from "./contexts/TaskContext";
 
 const theme = createTheme({
@@ -48,21 +52,84 @@ const theme = createTheme({
   },
 });
 
+const AuthenticatedApp = () => {
+  const { user, logout } = useAuth();
+
+  return (
+    <TaskProvider>
+      <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}>
+        <Container maxWidth="md">
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 4,
+            }}
+          >
+            <Typography variant="h4">Task Manager</Typography>
+            <Box>
+              <Typography variant="subtitle1" sx={{ mr: 2, display: "inline" }}>
+                Welcome, {user?.name}
+              </Typography>
+              <Button variant="outlined" onClick={logout}>
+                Logout
+              </Button>
+            </Box>
+          </Box>
+          <TaskForm />
+          <TaskList />
+        </Container>
+      </Box>
+    </TaskProvider>
+  );
+};
+
+const UnauthenticatedApp = () => {
+  const [isLogin, setIsLogin] = useState(true);
+
+  return (
+    <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}>
+      <Container maxWidth="sm">
+        {isLogin ? <LoginForm /> : <RegisterForm />}
+        <Box sx={{ textAlign: "center", mt: 2 }}>
+          <Button onClick={() => setIsLogin(!isLogin)}>
+            {isLogin ? "Need an account? Register" : "Have an account? Login"}
+          </Button>
+        </Box>
+      </Container>
+    </Box>
+  );
+};
+
 export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <TaskProvider>
-        <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: 4 }}>
-          <Container maxWidth="md">
-            <Typography variant="h4" sx={{ mb: 4, textAlign: "center" }}>
-              Task Manager
-            </Typography>
-            <TaskForm />
-            <TaskList />
-          </Container>
-        </Box>
-      </TaskProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </ThemeProvider>
   );
 }
+
+const AppContent = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        Loading...
+      </Box>
+    );
+  }
+
+  return user ? <AuthenticatedApp /> : <UnauthenticatedApp />;
+};

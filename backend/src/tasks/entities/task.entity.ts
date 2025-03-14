@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
+import { Document, Schema as MongooseSchema } from "mongoose";
+import { User } from "../../auth/entities/user.entity";
 
 export enum TaskPriority {
   LOW = "low",
@@ -23,6 +24,9 @@ export class Task {
 
   @Prop()
   category: string;
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: "User", required: true })
+  userId: User;
 }
 
 export type TaskDocument = Task & Document;

@@ -1,88 +1,50 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  HttpStatus,
-  HttpException,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Request,
+  UseGuards,
 } from "@nestjs/common";
-import { TasksService } from "./tasks.service";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CreateTaskDto } from "./dto/create-task.dto";
 import { UpdateTaskDto } from "./dto/update-task.dto";
+import { TasksService } from "./tasks.service";
 
 @Controller("tasks")
+@UseGuards(JwtAuthGuard)
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  async create(@Body() createTaskDto: CreateTaskDto) {
-    try {
-      return await this.tasksService.create(createTaskDto);
-    } catch (error) {
-      throw new HttpException("Failed to create task", HttpStatus.BAD_REQUEST);
-    }
+  create(@Request() req, @Body() createTaskDto: CreateTaskDto) {
+    return this.tasksService.create(createTaskDto, req.user._id);
   }
 
   @Get()
-  async findAll() {
-    try {
-      return await this.tasksService.findAll();
-    } catch (error) {
-      throw new HttpException(
-        "Failed to fetch tasks",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
+  findAll(@Request() req) {
+    return this.tasksService.findAll(req.user._id);
   }
 
   @Get(":id")
-  async findOne(@Param("id") id: string) {
-    try {
-      const task = await this.tasksService.findOne(id);
-      if (!task) {
-        throw new HttpException("Task not found", HttpStatus.NOT_FOUND);
-      }
-      return task;
-    } catch (error) {
-      throw new HttpException(
-        "Failed to fetch task",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
+  findOne(@Request() req, @Param("id") id: string) {
+    return this.tasksService.findOne(id, req.user._id);
   }
 
   @Patch(":id")
-  async update(@Param("id") id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    try {
-      const task = await this.tasksService.update(id, updateTaskDto);
-      if (!task) {
-        throw new HttpException("Task not found", HttpStatus.NOT_FOUND);
-      }
-      return task;
-    } catch (error) {
-      throw new HttpException(
-        "Failed to update task",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
+  update(
+    @Request() req,
+    @Param("id") id: string,
+    @Body() updateTaskDto: UpdateTaskDto
+  ) {
+    return this.tasksService.update(id, updateTaskDto, req.user._id);
   }
 
   @Delete(":id")
-  async remove(@Param("id") id: string) {
-    try {
-      const task = await this.tasksService.remove(id);
-      if (!task) {
-        throw new HttpException("Task not found", HttpStatus.NOT_FOUND);
-      }
-      return task;
-    } catch (error) {
-      throw new HttpException(
-        "Failed to delete task",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
+  remove(@Request() req, @Param("id") id: string) {
+    return this.tasksService.remove(id, req.user._id);
   }
 }
