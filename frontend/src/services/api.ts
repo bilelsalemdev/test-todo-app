@@ -1,7 +1,11 @@
 import axios from "axios";
 import { Task } from "../types/Task";
 
-const API_URL = "http://localhost:3000";
+// In production, API requests will go through the /api proxy configured in nginx
+// In development, it points to the local backend
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? '/api'
+  : "http://localhost:3000";
 
 const api = axios.create({
   baseURL: API_URL,
